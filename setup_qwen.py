@@ -21,33 +21,29 @@ def setup_qwen_framework():
     default_settings = {
         "mcpServers": {
             "serena": {
-                "command": "uvx",
-                "args": [
-                    "--from",
-                    "git+https://github.com/oraios/serena",
-                    "serena",
-                    "start-mcp-server",
-                    "--context",
-                    "ide-assistant",
-                    "--project",
-                    str(Path.cwd())
-                ]
+            "command": "serena-mcp-server",
+            "args": [
+                "--context",
+                "ide-assistant",
+                "--project",
+                "/home/mkh0813/transfer_server_all"
+            ]
             },
             "context7": {
-                "command": "uvx",
-                "args": [
-                    "context7-mcp-server",
-                    "start"
-                ]
+            "command": "npx",
+            "args": [
+                "-y",
+                "@upstash/context7-mcp@latest"
+            ]
             },
             "sequential": {
-                "command": "uvx",
-                "args": [
-                    "sequential-mcp-server",
-                    "start"
-                ]
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-sequential-thinking"
+            ]
             }
-        }
+  }
     }
     
     # Write settings
