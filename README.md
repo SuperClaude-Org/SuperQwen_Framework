@@ -17,13 +17,15 @@ Note : This is a test version. We welcome your contributions!
 2. Run the installation script:
 
    ```bash
-   python install_qwen.py
+   python SuperQwen_Framework/install_qwen.py 
    ```
 3. Setup the framework:
 
    ```bash
-   python setup_qwen.py
+   python SuperQwen_Framework/setup_qwen.py 
    ```
+
+4. If you want to change the folder, you can move the .qwen to root
 
 ## Usage
 
