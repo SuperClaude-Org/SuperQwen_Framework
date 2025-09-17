@@ -31,6 +31,7 @@ Issues = "https://github.com/SuperClaude-Org/SuperQwen_Framework/issues"
 
 [project.scripts]
 superqwen = "SuperQwen.setup.cli:main"
+SuperQwen = "SuperQwen.setup.cli:main"
 
 [tool.setuptools]
 include-package-data = true
