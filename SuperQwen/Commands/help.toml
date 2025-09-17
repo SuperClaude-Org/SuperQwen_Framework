@@ -1,7 +1,7 @@
 
 description = "List all available /sc commands and their functionality"
 
-prompt = ""# /sq:help - Command Reference Documentation
+prompt = """# /sq:help - Command Reference Documentation
 
 ## Triggers
 - Command discovery and reference lookup requests
@@ -60,4 +60,4 @@ Here is a complete list of all available SuperQwen (`/sq`) commands.
 ---
 
 **Note:** This list is manually generated and may become outdated. If you suspect it is inaccurate, please consider regenerating it or contacting a maintainer.
-""
+"""
