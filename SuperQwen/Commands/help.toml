@@ -1,5 +1,5 @@
 
-description: "List all available /sc commands and their functionality"
+description = "List all available /sc commands and their functionality"
 
 prompt = ""# /sq:help - Command Reference Documentation
 
