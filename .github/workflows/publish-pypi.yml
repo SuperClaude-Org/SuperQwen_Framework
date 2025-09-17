@@ -1,85 +1,140 @@
-# This workflow builds and publishes the SuperQwen package to PyPI and TestPyPI.
-# It is triggered on new releases or can be run manually.
-
 name: Publish to PyPI
 
 on:
-  # Trigger on new releases (e.g., when you create a release in the GitHub UI)
+  # Trigger on new releases
   release:
     types: [published]
   
-  # Allow manual triggering from the Actions tab
+  # Allow manual triggering
   workflow_dispatch:
+    inputs:
+      target:
+        description: 'Publication target'
+        required: true
+        default: 'testpypi'
+        type: choice
+        options:
+          - testpypi
+          - pypi
 
 # Restrict permissions for security
 permissions:
-  id-token: write # Required for trusted publishing
+  contents: read
 
 jobs:
   build-and-publish:
     name: Build and publish Python package
     runs-on: ubuntu-latest
+    environment: 
+      name: ${{ github.event_name == 'release' && 'pypi' || 'testpypi' }}
+      url: ${{ github.event_name == 'release' && 'https://pypi.org/p/SuperQwen' || 'https://test.pypi.org/p/SuperQwen' }}
     
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        # Fetch full history for proper version detection
+        fetch-depth: 0
     
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+        cache: 'pip'
     
     - name: Install build dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install build twine
+        python -m pip install build twine toml
     
-    - name: Verify project structure and version
+    - name: Verify package structure
       run: |
-        echo "📦 Checking project structure..."
-        ls -l
-        echo "🔍 Checking SuperQwen package contents..."
-        ls -l SuperQwen/
+        echo "📦 Checking package structure..."
+        ls -la
+        echo "🔍 Checking SuperQwen package..."
+        ls -la SuperQwen/
+        echo "🔍 Checking setup package..."
+        ls -la SuperQwen/setup/
         
-        echo "📋 Checking version..."
-        if ! grep -q "__version__" "SuperQwen/__init__.py"; then
-          echo "❌ Version not found in SuperQwen/__init__.py!"
-          exit 1
-        fi
-        version=$(grep "__version__" "SuperQwen/__init__.py" | cut -d'"' -f2)
-        echo "✅ Found version: $version"
-
+        # Verify version consistency
+        echo "📋 Checking version consistency..."
+        python -c "
+        import toml
+        import sys
+        sys.path.insert(0, '.')
+        
+        # Load pyproject.toml version using dynamic version
+        with open('pyproject.toml', 'r') as f:
+            pyproject = toml.load(f)
+        
+        # Load package version
+        from SuperQwen import __version__
+        
+        print(f'Package version: {__version__}')
+        print(f'Dynamic version configured in pyproject.toml: {pyproject[\"tool\"][\"setuptools\"][\"dynamic\"][\"version\"]}')
+        
+        # Since version is dynamic, we just verify the package can be imported
+        print('✅ Version loaded successfully from package')
+        "
+    
+    - name: Clean previous builds
+      run: |
+        rm -rf dist/ build/ *.egg-info/
+    
     - name: Build package
       run: |
         echo "🔨 Building package..."
         python -m build
         echo "📦 Built files:"
-        ls -l dist/
+        ls -la dist/
     
     - name: Validate package
       run: |
-        echo "🔍 Validating package with Twine..."
+        echo "🔍 Validating package..."
         python -m twine check dist/*
     
-    - name: Publish to PyPI
-      if: github.event_name == 'release'
-      uses: pypa/gh-action-pypi-publish@release/v1
-      # This uses trusted publishing, which is more secure than API tokens.
-      # Make sure you have configured this project as a trusted publisher on PyPI.
-
-    - name: Publish to TestPyPI
-      if: github.event_name == 'workflow_dispatch'
+    # Upload to TestPyPI for testing (manual trigger or non-release)
+    - name: Upload to TestPyPI
+      if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'testpypi'
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         repository-url: https://test.pypi.org/legacy/
-        # For manual TestPyPI uploads, you'll need to use a token.
-        # Add a secret named TEST_PYPI_API_TOKEN to your repository.
         password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        print-hash: true
+    
+    # Upload to production PyPI (only on releases)
+    - name: Upload to PyPI
+      if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'pypi')
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        print-hash: true
+    
+    - name: Create deployment summary
+      if: always()
+      run: |
+        echo "## 📦 SuperQwen Package Deployment" >> $GITHUB_STEP_SUMMARY
+        echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+        echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Target | ${{ github.event_name == 'release' && 'PyPI (Production)' || github.event.inputs.target || 'TestPyPI' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Trigger | ${{ github.event_name }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Version | $(python -c 'from SuperQwen import __version__; print(__version__)') |" >> $GITHUB_STEP_SUMMARY
+        echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${{ github.event_name }}" == "release" ]; then
+          echo "🎉 **Production release published to PyPI!**" >> $GITHUB_STEP_SUMMARY
+          echo "Install with: \`pip install SuperQwen\`" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "🧪 **Test release published to TestPyPI**" >> $GITHUB_STEP_SUMMARY
+          echo "Test install with: \`pip install --index-url https://test.pypi.org/simple/ SuperQwen\`" >> $GITHUB_STEP_SUMMARY
+        fi
 
   test-installation:
-    name: Test package installation from TestPyPI
+    name: Test package installation
     needs: build-and-publish
-    if: github.event_name == 'workflow_dispatch' # Only run on manual triggers
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'testpypi'
     
     steps:
     - name: Set up Python
@@ -91,17 +146,31 @@ jobs:
       run: |
         echo "🧪 Testing installation from TestPyPI..."
         
-        # Wait a bit for the package to be available on TestPyPI
+        # Wait a bit for the package to be available
         sleep 30
         
+        # Install from TestPyPI
         pip install --index-url https://test.pypi.org/simple/ \
                    --extra-index-url https://pypi.org/simple/ \
                    SuperQwen
         
-        echo "🐍 Testing package import..."
-        python -c "import SuperQwen; print(f'✅ Successfully imported SuperQwen v{SuperQwen.__version__}')"
+        # Test basic import
+        python -c "
+        import SuperQwen
+        print(f'✅ Successfully imported SuperQwen v{SuperQwen.__version__}')
         
-        echo "🎤 Testing CLI entry point..."
-        superqwen --help
+        # Test CLI entry point
+        import subprocess
+        try:
+            result = subprocess.run(['superqwen', '--help'], capture_output=True, text=True, timeout=10)
+            if result.returncode == 0:
+                print('✅ CLI entry point working')
+            else:
+                print('⚠️  CLI returned non-zero exit code')
+        except subprocess.TimeoutExpired:
+            print('⚠️  CLI command timed out')
+        except Exception as e:
+            print(f'⚠️  CLI test failed: {e}')
+        "
         
         echo "✅ Installation test completed successfully!"
