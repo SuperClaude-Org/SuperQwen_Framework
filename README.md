@@ -1,75 +1,75 @@
 # SuperQwen Framework
 
-SuperQwen Framework is an AI-enhanced development framework for Qwen CLI, adapted and forked from the **SuperGemini Framework**. It provides structured development capabilities with slash commands, behavioral modes, and specialized AI agents.
+SuperQwen is an AI-enhanced development framework designed to supercharge your command-line workflow, forked from the original SuperClaude/SuperGemini projects. It provides structured development capabilities with a powerful command-line interface, specialized AI agents, and behavioral modes.
 
-Note : This is a test version. We welcome your contributions!
+![SuperQwen CLI](https://user-images.githubusercontent.com/12345/some-image.png) <!-- Placeholder for a future screenshot -->
 
 ## Features
 
-* **18 Slash Commands**: TOML-based commands for systematic workflow automation (`/analyze`, `/implement`, etc.)
-* **Behavioral Modes**: Context-aware operation modes (Brainstorming, Introspection, Task Management, Token Efficiency)
-* **Specialized AI Agents**: 13 domain experts (System Architect, Security Engineer, etc.)
-* **MCP Server Integration**: Extended capabilities through MCP servers
+- **Modern CLI**: A polished and user-friendly command-line interface built with Typer and Rich.
+- **Granular Installation**: Install and uninstall exactly the components you need (`commands`, `modes`, `agents`, `mcp`) or all at once.
+- **Interactive Mode**: Run `superqwen install` for a guided, interactive setup experience.
+- **Self-Updating**: Keep your framework up-to-date with the simple `superqwen update` command.
+- **18 Slash Commands**: TOML-based commands for systematic workflow automation (`/analyze`, `/implement`, etc.).
+- **Behavioral Modes**: Context-aware operation modes (Brainstorming, Introspection, etc.).
+- **13 Specialized AI Agents**: Domain experts to assist with various development tasks.
 
 ## Installation
 
-1. Clone this repository
-2. Run the installation script:
+Install the framework directly from PyPI:
 
-   ```bash
-   python SuperQwen_Framework/install_qwen.py 
-   ```
-3. Setup the framework:
+```bash
+pip install SuperQwen
+```
 
-   ```bash
-   python SuperQwen_Framework/setup_qwen.py 
-   ```
+After installation, set up the framework components:
 
-4. If you want to change the folder, you can move the .qwen to root
+```bash
+# Run the interactive installer to choose components
+superqwen install
+
+# Or, install all components at once
+superqwen install all
+```
 
 ## Usage
 
-After installation, you can use the following commands in Qwen CLI:
+The SuperQwen CLI (`superqwen`) is the main entry point for managing your framework installation.
 
-* `/analyze` - Comprehensive code analysis
-* `/implement` - Implementation guidance
-* `/design` - System design assistance
-* `/test` - Test generation and validation
-* And 14 more commands...
+### Core Commands
 
-## Modes
+- **`superqwen install [component]`**: Install components.
+  - `superqwen install all`: Install everything.
+  - `superqwen install commands`: Install just the commands.
+  - `superqwen install`: Launch the interactive installer.
+- **`superqwen uninstall [component]`**: Uninstall components.
+- **`superqwen update`**: Update the framework to the latest version.
+- **`superqwen --help`**: Get help on any command or subcommand.
 
-Enable behavioral modes through flags:
-
-* `--brainstorm` - Brainstorming mode for idea generation
-* `--introspect` - Introspection mode for self-analysis
-* `--task-manage` - Task management mode
-* `--token-eff` - Token efficiency mode
+Once installed, you can use the slash commands (e.g., `/sq:analyze`, `/sq:implement`) and modes within your Qwen CLI session.
 
 ## Uninstallation
 
-To uninstall the framework:
+You can uninstall components gracefully:
 
 ```bash
-python uninstall_qwen.py
+# Run the interactive uninstaller
+superqwen uninstall
+
+# Or, uninstall all components at once
+superqwen uninstall all
+```
+
+To completely remove the package from your system:
+```bash
+pip uninstall SuperQwen
 ```
 
 ---
 
-### TODO
-
-* Add additional slash commands as needed
-* Extend pip and npm package support for new dependencies
-* Improve documentation for `/sq:` command
-* Enhance behavioral modes with more fine-grained controls
-* Integrate additional specialized AI agents
-* Ensure cross-platform compatibility for installation scripts
-
 ### Acknowledgment
 
-This framework was originally forked from the **SuperGemini Framework**. I would like to sincerely thank the **SuperClaude Team** for their outstanding work, which served as the foundation and inspiration for this contribution.
+This framework was originally forked from the **SuperGemini Framework**. We sincerely thank the **SuperClaude Team** for their outstanding work, which served as the foundation and inspiration for this project.
 
-* https://github.com/SuperClaude-Org/SuperClaude_Framework
-* https://github.com/SuperClaude-Org/SuperGemini_Framework
-
----
+- https://github.com/SuperClaude-Org/SuperClaude_Framework
+- https://github.com/SuperClaude-Org/SuperGemini_Framework

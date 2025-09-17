@@ -1,3 +1,4 @@
+import sys
 import typer
 from rich.console import Console
 from rich.theme import Theme
@@ -8,6 +9,7 @@ from .. import __version__
 from .logging import logger
 from .installer import INSTALL_MAP, install_commands, install_modes, install_agents, install_mcp
 from .uninstaller import UNINSTALL_MAP, uninstall_commands, uninstall_modes, uninstall_agents, uninstall_mcp
+import subprocess
 from .interactive import handle_interactive_install, handle_interactive_uninstall
 
 # --- Setup ---
@@ -126,6 +128,25 @@ def uninstall_agents_cmd():
 def uninstall_mcp_cmd():
     """Uninstall only the MCP Config."""
     uninstall_mcp()
+
+@app.command()
+def update():
+    """
+    Update the SuperQwen package to the latest version from PyPI.
+    """
+    console.print("[bold green]🚀 Checking for updates...[/bold green]")
+    with console.status("[bold green]Running pip install --upgrade SuperQwen...") as status:
+        try:
+            result = subprocess.run(
+                [sys.executable, "-m", "pip", "install", "--upgrade", "SuperQwen"],
+                capture_output=True, text=True, check=True
+            )
+            logger.info(result.stdout)
+            console.print("[bold green]✅ SuperQwen updated successfully![/bold green]")
+        except subprocess.CalledProcessError as e:
+            logger.error("Update failed!")
+            logger.error(e.stderr)
+            console.print("[bold red]❌ Update failed. See logs for details.[/bold red]")
 
 # --- Main entry point ---
 def main():
