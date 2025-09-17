@@ -1,13 +1,7 @@
----
-name: help
-description: "List all available /sc commands and their functionality"
-category: utility
-complexity: low
-mcp-servers: []
-personas: []
----
 
-# /sq:help - Command Reference Documentation
+description: "List all available /sc commands and their functionality"
+
+prompt = ""# /sq:help - Command Reference Documentation
 
 ## Triggers
 - Command discovery and reference lookup requests
@@ -66,3 +60,4 @@ Here is a complete list of all available SuperQwen (`/sq`) commands.
 ---
 
 **Note:** This list is manually generated and may become outdated. If you suspect it is inaccurate, please consider regenerating it or contacting a maintainer.
+""
