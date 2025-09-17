@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "SuperQwen"
+dynamic = ["version"]
+authors = [
+  { name="NomenAK", email="anton.knoery@gmail.com" },
+  { name="Mithun Gowda B", email="mithungowda.b7411@gmail.com" },
+]
+description = "An AI-enhanced development framework for Qwen CLI"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+dependencies = [
+    "typer[all]",
+    "rich",
+    "questionary",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Code Generators",
+]
+
+[project.urls]
+Homepage = "https://github.com/SuperClaude-Org/SuperQwen_Framework"
+Issues = "https://github.com/SuperClaude-Org/SuperQwen_Framework/issues"
+
+[project.scripts]
+superqwen = "SuperQwen.setup.cli:main"
+
+[tool.setuptools]
+include-package-data = true
+package-data = {"SuperQwen" = ["**"]}
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.dynamic]
+version = {attr = "SuperQwen.__version__"}
