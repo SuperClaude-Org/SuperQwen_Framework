@@ -72,7 +72,32 @@ Installing all components... ━━━━━━━━━━━━━━━━━
 - **`superqwen update`**: Update the framework to the latest version from PyPI.
 - **`superqwen --help`**: Get help on any command or subcommand.
 
-Once installed, you can use the slash commands (e.g., `/sq:analyze`, `/sq:implement`) and modes within your Qwen CLI session.
+Once installed, you can use the slash commands and modes within your Qwen CLI session.
+
+### Available Commands
+
+Here is a complete list of all available SuperQwen (`/sq`) commands.
+
+| Command | Description |
+|---|---|
+| `/sq:analyze` | Comprehensive code analysis across quality, security, performance, and architecture domains |
+| `/sq:build` | Build, compile, and package projects with intelligent error handling and optimization |
+| `/sq:cleanup` | Systematically clean up code, remove dead code, and optimize project structure |
+| `/sq:design` | Design system architecture, APIs, and component interfaces with comprehensive specifications |
+| `/sq:document` | Generate focused documentation for components, functions, APIs, and features |
+| `/sq:estimate` | Provide development estimates for tasks, features, or projects with intelligent analysis |
+| `/sq:explain` | Provide clear explanations of code, concepts, and system behavior with educational clarity |
+| `/sq:git` | Git operations with intelligent commit messages and workflow optimization |
+| `/sq:help` | List all available /sq commands and their functionality |
+| `/sq:implement` | Feature and code implementation with intelligent persona activation and MCP integration |
+| `/sq:improve` | Apply systematic improvements to code quality, performance, and maintainability |
+| `/sq:index` | Generate comprehensive project documentation and knowledge base with intelligent organization |
+| `/sq:load` | Session lifecycle management with Serena MCP integration for project context loading |
+| `/sq:reflect` | Task reflection and validation using Serena MCP analysis capabilities |
+| `/sq:save` | Session lifecycle management with Serena MCP integration for session context persistence |
+| `/sq:select-tool` | Intelligent MCP tool selection based on complexity scoring and operation analysis |
+| `/sq:test` | Execute tests with coverage analysis and automated quality reporting |
+| `/sq:troubleshoot` | Diagnose and resolve issues in code, builds, deployments, and system behavior |
 
 ---
 
