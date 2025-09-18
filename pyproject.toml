@@ -15,8 +15,6 @@ requires-python = ">=3.8"
 license = "MIT"
 dependencies = [
     "typer[all]",
-    "rich",
-    "questionary",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
