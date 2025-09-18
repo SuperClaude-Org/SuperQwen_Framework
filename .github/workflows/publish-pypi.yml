@@ -25,7 +25,7 @@ jobs:
   build-and-publish:
     name: Build and publish Python package
     runs-on: ubuntu-latest
-    environment: 
+    environment:
       name: ${{ github.event_name == 'release' && 'pypi' || 'testpypi' }}
       url: ${{ github.event_name == 'release' && 'https://pypi.org/p/SuperQwen' || 'https://test.pypi.org/p/SuperQwen' }}
     
@@ -62,25 +62,25 @@ jobs:
         import toml
         import sys
         sys.path.insert(0, '.')
-        
+
         # Load pyproject.toml version using dynamic version
         with open('pyproject.toml', 'r') as f:
             pyproject = toml.load(f)
-        
+
         # Load package version
         from SuperQwen import __version__
-        
+
         print(f'Package version: {__version__}')
         print(f'Dynamic version configured in pyproject.toml: {pyproject[\"tool\"][\"setuptools\"][\"dynamic\"][\"version\"]}')
-        
+
         # Since version is dynamic, we just verify the package can be imported
         print('✅ Version loaded successfully from package')
         "
-    
+
     - name: Clean previous builds
       run: |
         rm -rf dist/ build/ *.egg-info/
-    
+
     - name: Build package
       run: |
         echo "🔨 Building package..."
@@ -101,7 +101,7 @@ jobs:
         repository-url: https://test.pypi.org/legacy/
         password: ${{ secrets.TEST_PYPI_API_TOKEN }}
         print-hash: true
-    
+
     # Upload to production PyPI (only on releases)
     - name: Upload to PyPI
       if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'pypi')
@@ -109,7 +109,7 @@ jobs:
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
         print-hash: true
-    
+
     - name: Create deployment summary
       if: always()
       run: |
@@ -121,7 +121,7 @@ jobs:
         echo "| Version | $(python -c 'from SuperQwen import __version__; print(__version__)') |" >> $GITHUB_STEP_SUMMARY
         echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        
+
         if [ "${{ github.event_name }}" == "release" ]; then
           echo "🎉 **Production release published to PyPI!**" >> $GITHUB_STEP_SUMMARY
           echo "Install with: \`pip install SuperQwen\`" >> $GITHUB_STEP_SUMMARY
