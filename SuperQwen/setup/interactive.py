@@ -1,70 +1,106 @@
 import time
 import typer
-import questionary
-from rich.console import Console
-from rich.progress import Progress
 
+from . import ui
 from .installer import INSTALL_MAP
 from .uninstaller import UNINSTALL_MAP
 
-console = Console()
-
 def handle_interactive_install():
-    """Handles the interactive installation prompt."""
-    console.print("[bold]Welcome to the SuperQwen interactive installer![/bold]")
+    """Handles the interactive installation prompt using the custom UI."""
+    ui.display_header("SuperQwen Installer", "Interactive Setup")
 
-    choices = questionary.checkbox(
-        "Select the components you want to install:",
-        choices=[
-            questionary.Choice("Commands", checked=True),
-            questionary.Choice("Modes", checked=True),
-            questionary.Choice("Agents", checked=True),
-            questionary.Choice("MCP Config", checked=False),
-        ]
-    ).ask()
+    menu_options = [
+        "Core Components (Commands, Modes, Agents)",
+        "MCP Config (for advanced users)",
+        "All of the above"
+    ]
 
-    if not choices:
-        console.print("[warning]No components selected. Exiting.[/warning]")
+    # We can simplify the choices a bit for the single-choice menu
+    install_menu = ui.Menu("Installation Options", menu_options)
+    choice = install_menu.display()
+
+    if choice == -1:
+        ui.display_warning("Installation cancelled.")
         raise typer.Exit()
 
-    selected_components = [c.lower().split()[0] for c in choices]
+    tasks_to_run = []
+    if choice == 0: # Core
+        tasks_to_run.extend(['commands', 'modes', 'agents'])
+    elif choice == 1: # MCP
+        tasks_to_run.append('mcp')
+    elif choice == 2: # All
+        tasks_to_run.extend(['commands', 'modes', 'agents', 'mcp'])
 
-    with Progress(console=console) as progress:
-        task = progress.add_task("[green]Installing...", total=len(selected_components))
-        for component in selected_components:
+    if not tasks_to_run:
+        ui.display_warning("No components selected. Exiting.")
+        raise typer.Exit()
+
+    if ui.confirm(f"Ready to install the selected components?"):
+        ui.display_info("Starting installation...")
+        total_tasks = len(tasks_to_run)
+
+        for i, component in enumerate(tasks_to_run, 1):
             if component in INSTALL_MAP:
-                INSTALL_MAP[component]()
-                time.sleep(0.3)
-                progress.update(task, advance=1)
+                ui.display_step(i, total_tasks, f"Installing {component}...")
 
-    console.print("\n[success]✅ Interactive installation complete![/success]")
+                # Simulate work with a progress bar
+                progress_bar = ui.ProgressBar(100, prefix=f"{component.capitalize()}: ")
+                INSTALL_MAP[component]() # Call the actual install function
+                for j in range(101):
+                    time.sleep(0.01)
+                    progress_bar.update(j)
+                progress_bar.finish()
+
+        ui.display_success("\n✅ Interactive installation complete!")
+    else:
+        ui.display_warning("Installation aborted by user.")
+
 
 def handle_interactive_uninstall():
-    """Handles the interactive uninstallation prompt."""
-    console.print("[bold]Welcome to the SuperQwen interactive uninstaller![/bold]")
+    """Handles the interactive uninstallation prompt using the custom UI."""
+    ui.display_header("SuperQwen Uninstaller", "Interactive Removal")
 
-    choices = questionary.checkbox(
-        "Select the components you want to uninstall:",
-        choices=[
-            questionary.Choice("Commands"),
-            questionary.Choice("Modes"),
-            questionary.Choice("Agents"),
-            questionary.Choice("MCP Config"),
-        ]
-    ).ask()
+    menu_options = [
+        "Core Components (Commands, Modes, Agents)",
+        "MCP Config",
+        "All of the above"
+    ]
 
-    if not choices:
-        console.print("[warning]No components selected. Exiting.[/warning]")
+    uninstall_menu = ui.Menu("Uninstallation Options", menu_options)
+    choice = uninstall_menu.display()
+
+    if choice == -1:
+        ui.display_warning("Uninstallation cancelled.")
         raise typer.Exit()
 
-    selected_components = [c.lower().split()[0] for c in choices]
+    tasks_to_run = []
+    if choice == 0: # Core
+        tasks_to_run.extend(['commands', 'modes', 'agents'])
+    elif choice == 1: # MCP
+        tasks_to_run.append('mcp')
+    elif choice == 2: # All
+        tasks_to_run.extend(['commands', 'modes', 'agents', 'mcp'])
 
-    with Progress(console=console) as progress:
-        task = progress.add_task("[red]Uninstalling...", total=len(selected_components))
-        for component in selected_components:
+    if not tasks_to_run:
+        ui.display_warning("No components selected. Exiting.")
+        raise typer.Exit()
+
+    if ui.confirm(f"Are you sure you want to uninstall these components?", default=False):
+        ui.display_info("Starting uninstallation...")
+        total_tasks = len(tasks_to_run)
+
+        for i, component in enumerate(tasks_to_run, 1):
             if component in UNINSTALL_MAP:
-                UNINSTALL_MAP[component]()
-                time.sleep(0.3)
-                progress.update(task, advance=1)
+                ui.display_step(i, total_tasks, f"Uninstalling {component}...")
 
-    console.print("\n[success]✅ Interactive uninstallation complete![/success]")
+                # Simulate work with a progress bar
+                progress_bar = ui.ProgressBar(100, prefix=f"{component.capitalize()}: ")
+                UNINSTALL_MAP[component]() # Call the actual uninstall function
+                for j in range(101):
+                    time.sleep(0.01)
+                    progress_bar.update(j)
+                progress_bar.finish()
+
+        ui.display_success("\n✅ Interactive uninstallation complete!")
+    else:
+        ui.display_warning("Uninstallation aborted by user.")
