@@ -1,6 +1,7 @@
 import sys
 import typer
 import subprocess
+from typing import Optional
 from typing_extensions import Annotated
 
 from .. import __version__
@@ -13,12 +14,46 @@ from .interactive import handle_interactive_install, handle_interactive_uninstal
 # --- Setup ---
 COMPONENTS = ["commands", "modes", "agents", "mcp"]
 
+def version_callback(value: bool):
+    if value:
+        ui.display_info(f"SuperQwen Framework Version: {__version__}")
+        raise typer.Exit()
+
 app = typer.Typer(
     name="superqwen",
     help="SuperQwen Framework CLI - A tool to manage your Qwen CLI enhancements.",
     add_completion=False,
-    rich_markup_mode="rich",
 )
+
+@app.callback(invoke_without_command=True)
+def main_callback(
+    ctx: typer.Context,
+    version: Optional[bool] = typer.Option(
+        None,
+        "--version",
+        "-v",
+        help="Show the application's version and exit.",
+        callback=version_callback,
+        is_eager=True,
+    ),
+    help_flag: Optional[bool] = typer.Option(
+        None,
+        "--help",
+        "-h",
+        help="Show the help message and exit.",
+        is_eager=True,
+    )
+):
+    """
+    Manage the SuperQwen Framework.
+    """
+    if help_flag:
+        help() # Call the custom help command
+        raise typer.Exit()
+
+    if ctx.invoked_subcommand is None:
+        help() # Show help if no command is provided
+
 install_app = typer.Typer(name="install", help="Install framework components.")
 uninstall_app = typer.Typer(name="uninstall", help="Uninstall framework components.")
 app.add_typer(install_app)
@@ -127,6 +162,49 @@ def uninstall_mcp_cmd():
     """Uninstall only the MCP Config."""
     UNINSTALL_MAP["mcp"]()
     ui.display_success("MCP Config uninstalled.")
+
+@app.command()
+def help():
+    """Show this message and exit."""
+    ui.display_header("SuperQwen Framework", f"Version {__version__}")
+
+    ui.display_info("Usage: superqwen [OPTIONS] COMMAND [ARGS]...")
+
+    core_headers = ["Command", "Description"]
+    core_rows = [
+        ["install", "Install framework components (run interactively)."],
+        ["install all", "Install all components non-interactively."],
+        ["uninstall", "Uninstall framework components (run interactively)."],
+        ["uninstall all", "Uninstall all components non-interactively."],
+        ["update", "Update the SuperQwen package to the latest version."],
+        ["help, --help, -h", "Show this help message."],
+        ["--version, -v", "Show the application's version and exit."],
+    ]
+    ui.display_table(core_headers, core_rows, title="Core Commands")
+
+    sq_headers = ["Slash Command", "Description"]
+    sq_rows = [
+        ["/sq:analyze", "Comprehensive code analysis."],
+        ["/sq:build", "Build, compile, and package projects."],
+        ["/sq:cleanup", "Clean up code and optimize project structure."],
+        ["/sq:design", "Design system architecture and interfaces."],
+        ["/sq:document", "Generate focused documentation."],
+        ["/sq:estimate", "Provide development estimates for tasks."],
+        ["/sq:explain", "Provide clear explanations of code and concepts."],
+        ["/sq:git", "Git operations with intelligent commit messages."],
+        ["/sq:help", "List all available /sq commands."],
+        ["/sq:implement", "Feature and code implementation."],
+        ["/sq:improve", "Apply systematic improvements to code."],
+        ["/sq:index", "Generate comprehensive project documentation."],
+        ["/sq:load", "Load session context via MCP."],
+        ["/sq:reflect", "Task reflection and validation via MCP."],
+        ["/sq:save", "Persist session context via MCP."],
+        ["/sq:select-tool", "Intelligent MCP tool selection."],
+        ["/sq:test", "Execute tests with coverage analysis."],
+        ["/sq:troubleshoot", "Diagnose and resolve issues."],
+    ]
+    ui.display_table(sq_headers, sq_rows, title="Available /sq Commands")
+    ui.display_warning("Note: /sq commands do not accept flags. All text following the command is treated as a single prompt.")
 
 @app.command()
 def update():
