@@ -1,7 +1,6 @@
 import sys
 import typer
 import subprocess
-import time
 from typing_extensions import Annotated
 
 from .. import __version__
@@ -18,7 +17,7 @@ app = typer.Typer(
     name="superqwen",
     help="SuperQwen Framework CLI - A tool to manage your Qwen CLI enhancements.",
     add_completion=False,
-    rich_markup_mode="rich", # This can stay, Typer uses it for its own help formatting
+    rich_markup_mode="rich",
 )
 install_app = typer.Typer(name="install", help="Install framework components.")
 uninstall_app = typer.Typer(name="uninstall", help="Uninstall framework components.")
@@ -44,11 +43,9 @@ def install_all_cmd():
     for i, component in enumerate(COMPONENTS, 1):
         ui.display_step(i, total_components, f"Installing {component}...")
 
-        progress_bar = ui.ProgressBar(100, prefix=f"{component.capitalize()}: ")
-        INSTALL_MAP[component]() # Call the actual install function
-        for j in range(101):
-            time.sleep(0.01)
-            progress_bar.update(j)
+        # Create a progress bar with a dummy total, the installer function will set the real total.
+        progress_bar = ui.ProgressBar(1, prefix=f"{component.capitalize()}: ")
+        INSTALL_MAP[component](progress_bar=progress_bar) # Pass the progress bar
         progress_bar.finish()
 
     ui.display_success("\n✅ All components installed successfully!")
@@ -96,9 +93,11 @@ def uninstall_all_cmd():
     for i, component in enumerate(COMPONENTS, 1):
         ui.display_step(i, total_components, f"Uninstalling {component}...")
 
+        # We can't show real progress for uninstall, so we'll keep the simulation here
         progress_bar = ui.ProgressBar(100, prefix=f"{component.capitalize()}: ")
-        UNINSTALL_MAP[component]() # Call the actual uninstall function
+        UNINSTALL_MAP[component]()
         for j in range(101):
+            import time
             time.sleep(0.01)
             progress_bar.update(j)
         progress_bar.finish()

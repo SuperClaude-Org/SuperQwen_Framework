@@ -96,6 +96,8 @@ The `superqwen` CLI is the main entry point for managing your framework.
 
 Once installed, you can use the following slash commands (`/sq:*`) within your Qwen CLI session to leverage the power of SuperQwen's AI agents.
 
+> **Note:** These commands do not currently accept flags (e.g., `--verbose`). All text following the command is treated as a single, continuous prompt for the AI.
+
 | Command         | Description                                                                          |
 | --------------- | ------------------------------------------------------------------------------------ |
 | `/sq:analyze`   | Comprehensive code analysis (quality, security, performance, architecture).          |

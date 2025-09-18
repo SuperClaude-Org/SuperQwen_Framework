@@ -42,11 +42,8 @@ def handle_interactive_install():
             if component in INSTALL_MAP:
                 ui.display_step(i, total_tasks, f"Installing {component}...")
 
-                progress_bar = ui.ProgressBar(100, prefix=f"{component.capitalize()}: ")
-                INSTALL_MAP[component]()
-                for j in range(101):
-                    time.sleep(0.01)
-                    progress_bar.update(j)
+                progress_bar = ui.ProgressBar(1, prefix=f"{component.capitalize()}: ")
+                INSTALL_MAP[component](progress_bar=progress_bar)
                 progress_bar.finish()
 
         ui.display_success("\n✅ Interactive installation complete!")
@@ -91,6 +88,7 @@ def handle_interactive_uninstall():
             if component in UNINSTALL_MAP:
                 ui.display_step(i, total_tasks, f"Uninstalling {component}...")
 
+                # Uninstall progress is not easy to track, so we keep the simulation here
                 progress_bar = ui.ProgressBar(100, prefix=f"{component.capitalize()}: ")
                 UNINSTALL_MAP[component]()
                 for j in range(101):
