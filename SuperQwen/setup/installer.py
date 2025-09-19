@@ -2,48 +2,68 @@ import json
 import shutil
 import subprocess
 import importlib.resources
+from typing import Optional
 
 from .logging import logger
 from .file_utils import QWEN_DIR, get_package_files
+from .ui import ProgressBar
 
-def install_commands():
+def install_commands(progress_bar: Optional[ProgressBar] = None):
     logger.info("Installing Commands...")
     commands_dst = QWEN_DIR / "commands" / "sq"
     commands_dst.mkdir(parents=True, exist_ok=True)
-    files = get_package_files("commands")
-    count = 0
-    for file in files:
-        if file.name.endswith('.toml'):
-            with importlib.resources.as_file(file) as src_path:
-                shutil.copy2(src_path, commands_dst)
-                count += 1
-    logger.info(f"Copied {count} command files.")
 
-def install_modes():
+    files = get_package_files("commands")
+    files_to_copy = [f for f in files if f.name.endswith('.toml')]
+
+    if progress_bar:
+        progress_bar.total = len(files_to_copy)
+
+    for i, file in enumerate(files_to_copy):
+        with importlib.resources.as_file(file) as src_path:
+            shutil.copy2(src_path, commands_dst)
+        if progress_bar:
+            progress_bar.update(i + 1)
+
+    logger.info(f"Copied {len(files_to_copy)} command files.")
+
+def install_modes(progress_bar: Optional[ProgressBar] = None):
     logger.info("Installing Modes...")
     modes_dst = QWEN_DIR / "modes"
     modes_dst.mkdir(exist_ok=True)
-    files = get_package_files("modes")
-    count = 0
-    for file in files:
-        if file.name.endswith('.md'):
-            with importlib.resources.as_file(file) as src_path:
-                shutil.copy2(src_path, modes_dst)
-                count += 1
-    logger.info(f"Copied {count} mode files.")
 
-def install_agents():
+    files = get_package_files("modes")
+    files_to_copy = [f for f in files if f.name.endswith('.md')]
+
+    if progress_bar:
+        progress_bar.total = len(files_to_copy)
+
+    for i, file in enumerate(files_to_copy):
+        with importlib.resources.as_file(file) as src_path:
+            shutil.copy2(src_path, modes_dst)
+        if progress_bar:
+            progress_bar.update(i + 1)
+
+    logger.info(f"Copied {len(files_to_copy)} mode files.")
+
+def install_agents(progress_bar: Optional[ProgressBar] = None):
     logger.info("Installing Agents...")
     agents_dst = QWEN_DIR / "agents"
     agents_dst.mkdir(exist_ok=True)
+
     files = get_package_files("agents")
-    count = 0
-    for file in files:
-        if file.name.endswith('.md'):
-            with importlib.resources.as_file(file) as src_path:
-                shutil.copy2(src_path, agents_dst)
-                count += 1
-    logger.info(f"Copied {count} agent files.")
+    files_to_copy = [f for f in files if f.name.endswith('.md')]
+
+    if progress_bar:
+        progress_bar.total = len(files_to_copy)
+
+    for i, file in enumerate(files_to_copy):
+        with importlib.resources.as_file(file) as src_path:
+            shutil.copy2(src_path, agents_dst)
+        if progress_bar:
+            progress_bar.update(i + 1)
+
+    logger.info(f"Copied {len(files_to_copy)} agent files.")
 
 def _verify_npx_package(package_arg: str) -> bool:
     """Verifies if an npx package is available in the npm registry."""
@@ -63,7 +83,7 @@ def _verify_npx_package(package_arg: str) -> bool:
         logger.warning(f"    - npm package '{package_name}' not found in registry.")
         return False
 
-def install_mcp():
+def install_mcp(progress_bar: Optional[ProgressBar] = None):
     logger.info("Installing MCP Config...")
     settings_file = QWEN_DIR / "settings.json"
 
@@ -73,13 +93,16 @@ def install_mcp():
         "sequential": {"command": "npx", "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]}
     }
 
+    if progress_bar:
+        progress_bar.total = len(default_mcp_servers)
+
     verified_mcp_servers = {}
+    progress_step = 0
 
     for name, config in default_mcp_servers.items():
         command_to_check = config["command"]
         if shutil.which(command_to_check):
             is_verified = True
-            # Deeper verification for npx packages
             if command_to_check == "npx":
                 npx_package_arg = next((arg for arg in config["args"] if arg.startswith('@')), None)
                 if npx_package_arg:
@@ -92,6 +115,10 @@ def install_mcp():
                 logger.warning(f"  - Verification failed for '{name}', skipping.")
         else:
             logger.warning(f"  - Command '{command_to_check}' not found, skipping '{name}'.")
+
+        progress_step += 1
+        if progress_bar:
+            progress_bar.update(progress_step)
 
     if not verified_mcp_servers:
         logger.warning("No MCP servers could be verified. Skipping settings.json creation.")
